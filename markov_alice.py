@@ -1,7 +1,9 @@
 """Generate Markov text from text files."""
 
+import twitter
 from random import choice
 import sys
+import os
 
 
 def open_and_read_file(file_path):
@@ -71,19 +73,36 @@ def make_text(chains, n_gram):
             break
     words.extend(first_words)
     link = tuple(words[-n_gram:])
-    while link in chains and len(words) < 100:
+    while link in chains and len("".join(words)) < 280:
         words.append(choice(chains[link]))
         link = tuple(words[-n_gram:])
     try:
         while words[-1][-1] not in(".", "!", "?"):
             del words[-1]
     except:
-        print("Bad Punctuation")
         return make_text(chains, n_gram)
     return " ".join(words)
 
+
+def tweet(sentence):
+    """Tweets the given sentence"""
+
+    api = twitter.Api(
+        consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+        consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+        access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+        access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'])
+
+    print(api.VerifyCredentials())
+
+    status = api.PostUpdate(sentence)
+    print(status.text)
+
+
 input_path = sys.argv[1]
 n_gram = int(sys.argv[2])
+
+
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
@@ -94,4 +113,4 @@ chains = make_chains(input_text, n_gram)
 # Produce random text
 random_text = make_text(chains, n_gram)
 
-print(random_text)
+tweet(random_text)
