@@ -93,9 +93,14 @@ def tweet(sentence):
         access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
         access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'])
 
-    print(api.VerifyCredentials())
+    # print(api.VerifyCredentials())
+    old_status = api.GetUserTimeline(screen_name="markov_land")
+
+    print(old_status[0].text)
 
     status = api.PostUpdate(sentence)
+
+    print()
     print(status.text)
 
 
